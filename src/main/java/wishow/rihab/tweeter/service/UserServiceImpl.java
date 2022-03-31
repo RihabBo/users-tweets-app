@@ -62,9 +62,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void updateUserNameAndAge(User user, String name, int age) {
-        return;
-
+    public boolean updateUserNameAndAge(User user, String name, int age) {
+        UserEntity userEntity = userRepository.findUserById(user.getId());
+        if (userEntity != null) {
+            userEntity.setName(name);
+            userEntity.setAge(age);
+            userRepository.save(userEntity);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override

@@ -16,7 +16,7 @@ public interface UserService {
 
     boolean updateUserName(User user, String name);
 
-    void updateUserNameAndAge(User user, String name, int age);
+    boolean updateUserNameAndAge(User user, String name, int age);
 
     boolean deleteUser(Long id);
 }

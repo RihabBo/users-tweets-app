@@ -35,7 +35,6 @@ public class TweetController {
 
     }
 
-
     @PostMapping
     public ResponseEntity<Tweet> addTweet(@RequestBody NewTweetRequest newTweetRequest) {
         return tweetService.addTweet(newTweetRequest)
