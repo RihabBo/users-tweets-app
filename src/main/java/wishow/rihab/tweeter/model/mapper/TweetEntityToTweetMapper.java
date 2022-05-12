@@ -5,11 +5,15 @@ import wishow.rihab.tweeter.model.entities.TweetEntity;
 
 import java.util.function.Function;
 
-public enum  TweetEntityToTweetMapper  implements Function<TweetEntity, Tweet> {
+public enum TweetEntityToTweetMapper implements Function<TweetEntity, Tweet> {
     INSTANCE;
 
     @Override
     public Tweet apply(TweetEntity tweetEntity) {
-        return new Tweet(tweetEntity.getId(), tweetEntity.getUser().getId(), tweetEntity.getTweetContent(), tweetEntity.getCreatedAt());
+        if (tweetEntity != null) {
+            return new Tweet(tweetEntity.getId(), tweetEntity.getUser().getId(), tweetEntity.getTweetContent(), tweetEntity.getCreatedAt());
+        } else {
+            return null;
+        }
     }
 }

@@ -1,6 +1,8 @@
 package wishow.rihab.tweeter.service;
 
+import wishow.rihab.tweeter.controller.input.PatchUserInput;
 import wishow.rihab.tweeter.controller.request.NewUserRequest;
+import wishow.rihab.tweeter.controller.request.PatchUserRequest;
 import wishow.rihab.tweeter.model.User;
 
 import java.util.List;
@@ -14,9 +16,7 @@ public interface UserService {
 
     Optional<User> addUser(NewUserRequest newUserRequest);
 
-    boolean updateUserName(User user, String name);
-
-    boolean updateUserNameAndAge(User user, String name, int age);
+    UserUpdateResponse updateUserNameAndAge(PatchUserRequest patchUserRequest, User user);
 
     boolean deleteUser(Long id);
 }

@@ -2,13 +2,7 @@ package wishow.rihab.tweeter.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import wishow.rihab.tweeter.controller.request.NewTweetRequest;
 import wishow.rihab.tweeter.model.Tweet;
 import wishow.rihab.tweeter.service.TweetService;
@@ -30,8 +24,12 @@ public class TweetController {
 
 
     @GetMapping(value = "/{tweetId}")
-    public Tweet getTweetById(@PathVariable(value = "tweetId") Long tweetId) {
-        return tweetService.getTweetById(tweetId);
+    public ResponseEntity<Tweet> getTweetById(@PathVariable(value = "tweetId") Long tweetId) {
+        if (tweetService.getTweetById(tweetId) != null) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
 
     }
 

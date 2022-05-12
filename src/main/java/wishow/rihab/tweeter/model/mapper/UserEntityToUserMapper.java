@@ -10,7 +10,10 @@ public enum UserEntityToUserMapper implements Function<UserEntity, User> {
 
     @Override
     public User apply(UserEntity userEntity) {
-
-        return new User(userEntity.getId(), userEntity.getName(), userEntity.getAge());
+        if (userEntity != null) {
+            return new User(userEntity.getId(), userEntity.getName(), userEntity.getAge());
+        } else {
+            return null;
+        }
     }
 }

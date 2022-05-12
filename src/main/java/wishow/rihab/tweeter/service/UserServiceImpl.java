@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wishow.rihab.tweeter.controller.request.NewUserRequest;
+import wishow.rihab.tweeter.controller.request.PatchUserRequest;
 import wishow.rihab.tweeter.model.User;
 import wishow.rihab.tweeter.model.entities.UserEntity;
 import wishow.rihab.tweeter.model.mapper.UserEntityToUserMapper;
@@ -48,34 +49,22 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public boolean updateUserName(User user, String name) {
+    public UserUpdateResponse updateUserNameAndAge(PatchUserRequest patchUserRequest, User user) {
         UserEntity userEntity = userRepository.findUserById(user.getId());
         if (userEntity != null) {
-            userEntity.setName(name);
+            if (patchUserRequest.getName() != null) {
+                userEntity.setName(patchUserRequest.getName());
+            }
+            if (patchUserRequest.getAge() != null) {
+                userEntity.setAge(patchUserRequest.getAge());
+            }
             userRepository.save(userEntity);
-            return true;
-        } else {
-            return false;
+            return UserUpdateResponse.USER_UPDATED;
         }
-
+        return UserUpdateResponse.NO_RESOURCE_FOUND;
     }
 
     @Override
-    @Transactional
-    public boolean updateUserNameAndAge(User user, String name, int age) {
-        UserEntity userEntity = userRepository.findUserById(user.getId());
-        if (userEntity != null) {
-            userEntity.setName(name);
-            userEntity.setAge(age);
-            userRepository.save(userEntity);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    @Transactional
     public boolean deleteUser(Long id) {
         if (userRepository.existsById(id)) {
             List<Long> tweetIds = tweetRepository.findByUserId(id)

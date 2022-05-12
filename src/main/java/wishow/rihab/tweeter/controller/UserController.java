@@ -1,27 +1,23 @@
 package wishow.rihab.tweeter.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import wishow.rihab.tweeter.controller.error.ApiError;
+import wishow.rihab.tweeter.controller.input.PatchUserInput;
 import wishow.rihab.tweeter.controller.request.NewUserRequest;
+import wishow.rihab.tweeter.controller.request.PatchUserRequest;
 import wishow.rihab.tweeter.model.Tweet;
 import wishow.rihab.tweeter.model.User;
 import wishow.rihab.tweeter.service.TweetService;
 import wishow.rihab.tweeter.service.UserService;
+import wishow.rihab.tweeter.service.UserUpdateResponse;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -39,8 +35,12 @@ public class UserController {
     }
 
     @GetMapping(value = "/{userId}")
-    public User getUserById(@PathVariable("userId") Long userId) {
-        return userService.getUserById(userId);
+    public ResponseEntity<User> getUserById(@PathVariable("userId") Long userId) {
+        if (userService.getUserById(userId) != null) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
@@ -66,28 +66,23 @@ public class UserController {
 
     }
 
-    @PatchMapping(value = "/{userName}")
-    public ResponseEntity<Void> updateUserName(@RequestBody User user, @PathVariable(value = "userName") String userName) {
-        if (userService.updateUserName(user, userName)) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.badRequest().build();
+    @PatchMapping(value = "/{userId}")
+    public ResponseEntity<ApiError> updateUserNameAndAge(@RequestBody PatchUserInput userInput, @PathVariable(value = "userId") Long userId) {
+        try {
+            PatchUserRequest patchUserRequest = new PatchUserRequest(userInput);
+            User userToUpdate =
+                    userService.getUserById(userId);
+            if (userToUpdate != null) {
+                UserUpdateResponse userUpdateResponse = userService.updateUserNameAndAge(patchUserRequest, userToUpdate);
+                if (UserUpdateResponse.USER_UPDATED == userUpdateResponse || UserUpdateResponse.NOTHING_TO_UPDATE == userUpdateResponse) {
+                    return ResponseEntity.noContent().build();
+                }
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(ApiError.builder().code(404).message("The user was not found").build());
+        } catch (IllegalArgumentException e) {
+            log.warn("Cannot update user", e);
+            return ResponseEntity.badRequest().body(ApiError.builder().code(400).message("The name or the age of the user is not valid").build());
         }
     }
-
-
-    @PatchMapping(value = "/{userName}/{userAge}")
-    public ResponseEntity<Void> updateUserNameAndAge(@RequestBody User user, @PathVariable(value = "userName") String userName, @PathVariable(value = "userAge") int userAge) {
-        if (userService.updateUserNameAndAge(user, userName, userAge)) {
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
-    }
-
-    public void sort(){
-        List<String> list = new ArrayList<>();
-        Collections.sort(list);
-    }
-
 }
